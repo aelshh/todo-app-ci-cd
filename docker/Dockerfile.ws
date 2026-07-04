@@ -1,6 +1,8 @@
 FROM oven/bun:1
 
 WORKDIR /user/src/app
+ENV DATABASE_URL="postgresql://postgres:mysecretpassword@localhost:5432/postgres"
+
 
 COPY ./packages ./packages
 COPY ./apps/ws-backend ./apps/ws-backend 
