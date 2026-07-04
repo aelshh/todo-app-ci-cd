@@ -1,0 +1,23 @@
+name: "Deploy the http backend"
+on:
+  push:
+    branches: ["main"]
+jobs:
+  builds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: "Docker login"
+        uses: actions/login-action@v2
+        with:
+          username: ${{secrets.DOCKERHUB_USERNAME}}
+          password: ${{secrets.DOCKERHUB_PASSWORD}}
+      - name: "Build and push"
+        uses: actions/build-push-action@v2
+        with:
+          context: .
+          file: ./docker/Dockerfile.http
+          push: true
+          tags: whowasthat/todo-app-http:${{github.sha}}
