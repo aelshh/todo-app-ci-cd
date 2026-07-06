@@ -1,4 +1,4 @@
-name: "Deploy the websocket backend"
+name: "Deploy the web"
 on:
   push:
     branches: ["main"]
@@ -18,6 +18,14 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./docker/Dockerfile.http
+          file: ./docker/Dockerfile.ws
+          build-args: |
+            DATABASE_URL: ${{secrets.DATABASE_URL}}
           push: true
-          tags: whowasthat/todo-app-websocket:${{github.sha}}
+          tags: whowasthat/todo-app-ws:${{github.sha}}
+
+      - name: "Deploy to VM"
+        run: |
+          echo "${{secrets.SSH_PRIVATE_KEY}}" &> ~ssh_key
+          chmod 700 /home/runner/ssh_key
+          ssh -o  StrictHostKeyChecking=no -i ~/ssh_key adarsh@${{secrets.SERVER_IP}} -t "docker stop web || true && docker run --name web -d -p 3000:3000 whowasthat/todo-app-ws:${{github.sha}}"
