@@ -26,7 +26,7 @@ jobs:
 
       - name: "Deploy to VM"
         run: |
-          mkdir ~/ssh_key
+          touch ~/ssh_key
           echo "${{secrets.SSH_PRIVATE_KEY}}" &> ~/ssh_key
           chmod 700 /home/runner/ssh_key
           ssh -o  StrictHostKeyChecking=no -i ~/ssh_key adarsh@${{secrets.SERVER_IP}} -t "docker stop web || true && docker run --name web -d -p 3000:3000 whowasthat/todo-app-ws:${{github.sha}}"
