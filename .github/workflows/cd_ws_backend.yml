@@ -20,13 +20,14 @@ jobs:
           context: .
           file: ./docker/Dockerfile.ws
           build-args: |
-            DATABASE_URL: ${{secrets.DATABASE_URL}}
+            DATABASE_URL=${{secrets.DATABASE_URL}}
           push: true
           tags: whowasthat/todo-app-ws:${{github.sha}}
 
+      - name: "Install SSH key"
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: "Deploy to VM"
-        run: |
-          touch ~/ssh_key
-          echo "${{secrets.SSH_PRIVATE_KEY}}" &> ~/ssh_key
-          chmod 700 /home/runner/ssh_key
-          ssh -o  StrictHostKeyChecking=no -i ~/ssh_key adarsh@${{secrets.SERVER_IP}} -t "docker stop web || true && docker run --name web -d -p 3000:3000 whowasthat/todo-app-ws:${{github.sha}}"
+        run: ssh -o StrictHostKeyChecking=no adarsh@${{secrets.SERVER_IP}} "docker stop ws-backend || true && docker run --name ws-backend -d -p 8080:8080 whowasthat/todo-app-ws:${{github.sha}}"
